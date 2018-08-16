@@ -3,36 +3,12 @@ import {model} from "./model.js"
 "use strict"
 
 export const control = {
-  readInput: {
+  expand: {
     execute: function(){
-      model.readInput()
+      model.expand.execute()
     },
     add:function(){
-      view.elements.read.onclick = this.execute
-    },
-  },
-  saveInput: {
-    execute: function(){
-      model.saveInput()
-    },
-    add:function(){
-      view.elements.saveInput.onclick = this.execute
-    },
-  },
-  saveOutput: {
-    execute: function(){
-      model.saveOutput()
-    },
-    add:function(){
-      view.elements.saveOutput.onclick = this.execute
-    },
-  },
-  sendData:{
-     execute: function(){
-      model.sendData()
-    },
-    add:function(){
-      view.elements.sendData.onclick = this.execute
+      view.elements.expandbutton.onclick = this.execute
     },
   },
   resize:{
@@ -43,23 +19,25 @@ export const control = {
       window.onresize=this.execute
     }, 
   },
-  keyDown: {
-    execute:function(e){
-      model.keyDown(e)
+  register:{
+    execute:function(){
+        model.registerbutton.execute()
     },
-    add: function(){
-      document.onkeydown=this.execute
-    }
+    add:function(){
+      view.elements.registerbutton.onclick = this.execute
+    }, 
   },
+
   initialize: function(){
     //add method
+    
     const controls = [
-      this.readInput,
-      this.saveInput,this.saveOutput,
-      this.sendData,
-      this.resize, this.keyDown
+      this.expand,
+      this.resize,
+      this.register,
     ] 
     controls.forEach(control =>control.add())
+    
     model.initialize()
   },
 }
