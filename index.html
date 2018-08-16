@@ -3,10 +3,11 @@
 <html lang="en-us">
 <head>
   <title>jsmap</title>
+  <meta charset="UTF-8"> 
   <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="./styles/leaflet.css" />
-  <link rel="stylesheet" href="./styles/simplemde.min.css" />
-  <link rel="stylesheet" href="./styles/font-awesome.min.css"/>
+  <link rel="stylesheet" href="./scripts/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="./scripts/simplemde/simplemde.min.css" />
+  <link rel="stylesheet" href="./scripts/simplemde/font-awesome.min.css"/>
   <link rel="stylesheet" type="text/css" href="./styles/index.css">
 
   <script defer src="./scripts/leaflet/leaflet.js"></script>
@@ -38,14 +39,12 @@
   </main>
 </div>
 <div id="markdownArea" class="hide">
-  <div>register</div>
+  <h1>register</h1>
   <form name="form">
     <input name="title" type="text" placeholder="TITLE" >
     <input name="keyword" type="text" placeholder="key words" >
   </form>
-  <textarea id="markdown" name="name" rows="8" cols="40">
-    "# sample"
-  </textarea>
+  <textarea id="markdown" name="name" rows="8" cols="40"></textarea>
 </div>
 </body>
 </html>
