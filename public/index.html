@@ -1,63 +1,51 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-us">
 <head>
   <title>jsmap</title>
-  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-
-
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="./styles/leaflet.css" />
+  <link rel="stylesheet" href="./styles/simplemde.min.css" />
+  <link rel="stylesheet" href="./styles/font-awesome.min.css"/>
   <link rel="stylesheet" type="text/css" href="./styles/index.css">
+
+  <script defer src="./scripts/leaflet/leaflet.js"></script>
   <script defer src="./scripts/FileReader/FileReader.js"></script>
   <script defer src="./scripts/d3/d3.v5.min.js"></script>
+  <script defer src="./scripts/simplemde/simplemde.min.js"></script>
   <script defer src="./scripts/jsmap/node_modules/file-saver/FileSaver.js"></script>
   <script type=module src="./scripts/index.js"></script>
-
 </head>
 <body>
-<img id="world" src="./scripts/jsmap/svg/BlankMap-World6-Equirectangular.svg">
-<div id="map"></div>
-<!--
-<div id="container">
-  <header>
-    <ul class="header">
-      <li class="title">
-        <h1>jsonee</h1>
-      </li>
-      <li>
-        <a >URL</a>
-        <input id="urlInput" type="text" name="url">
-      </li>
-      <li>
-        <a>via server</a>
-        <input id="viaserver" type="checkbox" name="viaserver">
-      </li>
-    </ul>
-  </header>
+<div class="container">
+  <aside class="show">
+    <header>
+      <h1>jsmap</h1>
+    </header>
+    <article>
+      <form name="form">
+        <input name="search" type="text" placeholder="Search ..." >
+      </form>
+    </article>
+    <article class="register" id="registerbutton">
+      <img class="pen" src="./images/pen.svg">
+      <p>register</p>
+    </article>
+  </aside>
   <main>
-    <div id="left">
-      <ul class="func">
-        <li> 
-          <a id="read">read</a>
-          <input id="readInput" type="file" name="files" style="display:none;">
-        </li>
-        <li id="saveInput">save</li>
-      </ul>
-      <div id="input"></div>
-    </div>
-    <div id="center">
-      <div id="sendData"></div>
-    </div>
-    <div id="right">
-      <ul class="func">
-        <li id="saveOutput">save</li>
-      </ul>
-      <div id="output"></div>
-    </div>
+    <div class="expandbutton" id="expandbutton"></div>
+    <div id="map"></div>
   </main>
-  <footer>
-    <small>Copyright July 2018 jsonee assosiation</small>
-  </footer>
 </div>
--->
+<div id="markdownArea" class="hide">
+  <div>register</div>
+  <form name="form">
+    <input name="title" type="text" placeholder="TITLE" >
+    <input name="keyword" type="text" placeholder="key words" >
+  </form>
+  <textarea id="markdown" name="name" rows="8" cols="40">
+    "# sample"
+  </textarea>
+</div>
 </body>
 </html>
