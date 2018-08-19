@@ -1,11 +1,20 @@
 version: '2'
 services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - "27018:27017"
+    volumes:
+      - /var/data/jsmap_mongo/db:/data/db
+    networks:
+      - default
   node:
     image: node:alpine
     restart: always 
     volumes:
       - ./src:/usr/src
-      - /var/log/jsonee:/var/log/node
+      - /var/log/jsmap:/var/log/node
     working_dir: '/usr/src'
     command: npm start
     networks:
@@ -16,7 +25,7 @@ services:
     volumes:
       - ./public:/usr/share/nginx/html
       - ./conf.d:/etc/nginx/conf.d
-      - /var/log/jsonee:/var/log/nginx
+      - /var/log/jsmap:/var/log/nginx
     networks:
       - default
       - neco_link
