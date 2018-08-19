@@ -4,6 +4,10 @@ import {arrow} from "./svg/arrow.js"
 "use strict"
 
 export const model ={
+  initialURL: "/jsmap/node/initial",
+  uploadURL: "/jsmap/node/upload",
+  getOneURL: "/jsmap/node/getone",
+  id:null,
   modeFlag:false,
   fullscreenFlag:false,
   asideWidth:null,
@@ -20,10 +24,8 @@ export const model ={
     longitude:null,
     latitude:null,
     text:null,
-    html:null,
   },
   initialize: function(){
-      
     const bodyWidth = view.elements.body.clientWidth
     const bodyHeight = view.elements.body.clientHeight
     const asideWidth = view.elements.aside.clientWidth
@@ -53,7 +55,43 @@ export const model ={
         shadowAnchor: [6, 32],
         popupAnchor: [-16, -32],
       })
-    
+    const url = model.initialURL 
+    const data = {
+      body: JSON.stringify({}),
+      cache: "no-cache",
+      credentials: "same-origin",
+      headers: {"content-type":"application/json"},
+      method: "POST",
+      mode: "cors",
+      redirect: "follow",
+      referror: "no-referror",
+    }
+    const getposition = async ()=>{
+      try{
+        const response = await fetch(url, data)
+        const json = await response.json()
+        console.log(json.result)
+        if(json.result){
+          const markers = json.result.map(v=>{
+              const clickFunc = model.makeClickFunc(v._id) 
+              const marker =  L.marker([v.longitude, v.latitude])
+                .addTo(geomap)
+                .bindPopup(v.title)
+                .on("click", clickFunc)
+              return marker
+            })
+        }
+        else{
+          throw new Error(json.message)
+        }
+       }
+       catch(e){
+         console.log(e.message)
+         alert("jsmap server is not working")
+      }
+    }
+    getposition()
+
     const markdownHeaderHeight = view.elements.markdownHeader.clientHeight
     const longlatHeight = view.elements.longlat.clientHeight
     const markdownInputHeight = view.elements.markdownInput.clientHeight
@@ -70,6 +108,53 @@ export const model ={
         autoDownloadFontAwesome: false,
       })
     this.simplemde = simplemde
+
+  },
+  makeClickFunc:function(id){
+    console.log(id)
+    const url = model.getOneURL
+    const data = {
+      body: JSON.stringify({id:id}),
+      cache: "no-cache",
+      credentials: "same-origin",
+      headers: {"content-type":"application/json"},
+      method: "POST",
+      mode: "cors",
+      redirect: "follow",
+      referror: "no-referror",
+    }
+    const send = async(eve) =>{
+      try{
+        const response = await fetch(url, data)
+        const json = await response.json()
+        if(json.result){
+          const result = json.result
+          const longitude = result.longitude
+          const latitude = result.latitude
+          const title = result.title
+          const keywords = result.keywords
+          const text = result.text
+          const html = model.simplemde.options.previewRender(text)
+
+          model.wiki.longitude = longitude 
+          model.wiki.latitude = latitude 
+          model.wiki.title = title
+          model.wiki.keywords = keywords 
+          model.wiki.text = text 
+
+          view.elements.wikiTitle.textContent = title
+          view.elements.wikiHTML.innerHTML = html 
+        }
+        else{
+          throw new Error(json.message)
+        }
+      }
+      catch(e){
+        console.log(e.message)
+        alert("jsmap server is not working")
+      }
+    }
+    return send
   },
   resize:function(){
     const bodyWidth = view.elements.body.clientWidth
@@ -103,7 +188,7 @@ export const model ={
     },
   },
   registerbutton:{
-    execute:function(){
+    execute:function(deleteId = true){
       const markdownArea = view.elements.markdownArea
       const mainContents = view.elements.mainContents
       markdownArea.className = model.modeFlag ? "hide" : "show"
@@ -112,11 +197,14 @@ export const model ={
       view.elements.title.value = "" 
       view.elements.keywords.value = "" 
       model.simplemde.value("")
+      if(deleteId){
+        model.id = null
+      }
     },
   },
   edit:{
     execute: function(){
-      model.registerbutton.execute()
+      model.registerbutton.execute(false)
       const simplemde = model.simplemde
       const longitude = model.wiki.longitude
       const latitude = model.wiki.latitude
@@ -133,15 +221,18 @@ export const model ={
   },
   fullscreen:{
     execute:function(){
+      const simplemde = model.simplemde
       const fullscreenMode = view.elements.fullscreenMode   
       const mainContents = view.elements.mainContents
       const fullscreenTitle = view.elements.fullscreenTitle
       const fullscreenSection = view.elements.fullscreenSection
+      const text = model.wiki.text
+      const html = simplemde.options.previewRender(text)
       mainContents.className = model.fullscreenFlag ? "show":"hide"
       fullscreenMode.className = model.fullscreenFlag ? "hide":"show"
       model.fullscreenFlag = model.fullscreenFlag ? false :true
       fullscreenTitle.textContent = model.wiki.title
-      fullscreenSection.innerHTML = model.wiki.html
+      fullscreenSection.innerHTML = html 
 
     }
   },
@@ -213,6 +304,8 @@ export const model ={
       const longitude = parseFloat(longitudeString)
       const latitude = parseFloat(latitudeString)
       if(!isNaN(longitude) && !isNaN(latitude)){
+        const id = model.id
+        console.log(id)
         const title = view.elements.title.value
         const keywords = view.elements.keywords.value
         const text = simplemde.value()
@@ -223,12 +316,11 @@ export const model ={
         model.wiki.title = title
         model.wiki.keywords = keywords 
         model.wiki.text = text 
-        model.wiki.html = html 
 
         const marker = L.marker([longitude, latitude])
           .addTo(geomap)
           .bindPopup(title)
-          .openPopup();
+          .openPopup()
         geomap.panTo(new L.LatLng(longitude, latitude))
         model.close.execute()
 
@@ -239,6 +331,47 @@ export const model ={
         simplemde.value("")
         view.elements.wikiTitle.textContent = title
         view.elements.wikiHTML.innerHTML = html 
+
+        const body = {
+          id:id,
+          longitude:longitude,
+          latitude:latitude,
+          title:title,
+          keywords:keywords,
+          text: text,
+        }
+        const url = model.uploadURL
+        const data = {
+          body: JSON.stringify(body),
+          cache: "no-cache",
+          credentials: "same-origin",
+          headers: {"content-type":"application/json"},
+          method: "POST",
+          mode: "cors",
+          redirect: "follow",
+          referror: "no-referror",
+        }
+        const send = async() =>{
+          try{
+            const response = await fetch(url, data)
+            const json = await response.json()
+            if(!json.register){
+              throw new Error(`data has not been saved yet. ${json.message}`) 
+            }
+            else{
+              if(json.hasOwnProperty("id")){
+                const id = json.id
+                model.id = id
+                console.log("result",id)
+              }
+            }
+          }
+          catch(e){
+            console.log(e.message)
+            alert("jsmap server is not working")
+          }
+        }
+        send()
       }
     },
   }
