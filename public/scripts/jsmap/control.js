@@ -19,6 +19,26 @@ export const control = {
       window.onresize=this.execute
     }, 
   },
+  change:{
+    pLongExecute:function(){
+      model.change.pLongExecute()
+    },
+    pLatExecute:function(){
+      model.change.pLatExecute()
+    },
+    lLongExecute:function(){
+      model.change.lLongExecute()
+    },
+    lLatExecute:function(){
+      model.change.lLatExecute()
+    },
+    add:function(){
+      view.elements.positionLongitude.onchange = this.pLongExecute
+      view.elements.positionLatitude.onchange = this.pLatExecute
+      view.elements.longlatLongitude.onchange = this.lLongExecute
+      view.elements.longlatLatitude.onchange = this.lLatExecute
+    },
+  },
   register:{
     execute:function(){
         model.registerbutton.execute()
@@ -27,14 +47,67 @@ export const control = {
       view.elements.registerbutton.onclick = this.execute
     }, 
   },
-
+  edit:{
+    execute: function(){
+      model.edit.execute()
+    },
+    add: function(){
+      view.elements.edit.onclick = this.execute
+    }
+  },
+  fullscreen:{
+    execute: function(){
+      model.fullscreen.execute()
+    },
+    add: function(){
+      view.elements.fullscreen.onclick = this.execute
+    },
+  },
+  close2:{
+    execute:function(){
+      model.close2.execute()
+    },
+    add:function(){
+      view.elements.close2.onclick = this.execute
+    },
+  },
+  close: {
+    execute:function(){
+      model.close.execute()
+    },
+    add:function(){
+      view.elements.close.onclick = this.execute
+    }
+  },
+  plot:{
+    execute: function(){
+      model.plot.execute()
+    },
+    add: function(){
+      view.elements.positionPlot.onclick = this.execute
+    },
+  },
+  post:{
+    execute:function(){
+      model.post.execute()
+    },
+    add:function(){
+      view.elements.post.onclick = this.execute
+    }
+  },
   initialize: function(){
     //add method
-    
     const controls = [
       this.expand,
       this.resize,
+      this.change,
       this.register,
+      this.edit,
+      this.fullscreen,
+      this.close2,
+      this.close,
+      this.plot,
+      this.post,
     ] 
     controls.forEach(control =>control.add())
     

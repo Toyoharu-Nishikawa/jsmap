@@ -5,9 +5,9 @@
   <title>jsmap</title>
   <meta charset="UTF-8"> 
   <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="./scripts/leaflet/leaflet.css" />
-  <link rel="stylesheet" href="./scripts/simplemde/simplemde.min.css" />
-  <link rel="stylesheet" href="./scripts/simplemde/font-awesome.min.css"/>
+  <link rel="stylesheet" href="./scripts/leaflet/leaflet.css" >
+  <link rel="stylesheet" href="./scripts/simplemde/simplemde.min.css" >
+  <link rel="stylesheet" href="./scripts/simplemde/font-awesome.min.css">
   <link rel="stylesheet" type="text/css" href="./styles/index.css">
 
   <script defer src="./scripts/leaflet/leaflet.js"></script>
@@ -18,33 +18,98 @@
   <script type=module src="./scripts/index.js"></script>
 </head>
 <body>
-<div class="container">
-  <aside class="show">
-    <header>
-      <h1>jsmap</h1>
-    </header>
-    <article>
-      <form name="form">
-        <input name="search" type="text" placeholder="Search ..." >
-      </form>
-    </article>
-    <article class="register" id="registerbutton">
-      <img class="pen" src="./images/pen.svg">
-      <p>register</p>
-    </article>
-  </aside>
-  <main>
-    <div class="expandbutton" id="expandbutton"></div>
-    <div id="map"></div>
-  </main>
+<div id="mainContents" class="show">
+  <div class="container">
+    <aside>
+      <header>
+        <h1>jsmap</h1>
+      </header>
+      <article class="search">
+        <form name="form">
+          <input name="search" type="text" placeholder="Search ..." >
+        </form>
+      </article>
+      <article class="position" id="position">
+        <h2>pin on the map</h2>
+        <form name="position">
+          <input name="longitude" type="text" placeholder="longitude ex. 36.5" >
+          <input name="latitude" type="text" placeholder="latitude ex. 139.0" >
+        </form>
+        <div class="positionPlot" id="positionPlot">
+          <img src="./images/marker.svg">
+          <p>plot</p>
+        </div>
+      </article>
+      <article class="register" id="registerbutton">
+        <img class="pen" src="./images/pen.svg">
+        <p>register</p>
+      </article>
+      <article class="wiki" id="wiki">
+        <header class="wikiHeader">
+          <h2 id="wikiTitle">Title ...</h2>
+          <ul>
+            <li class="editIcon" id="editIcon">
+              <img  src="./images/framed_pen.svg">
+            </li>
+            <li class="fullscreenIcon" id="fullscreenIcon">
+              <img  src="./images/fullscreen.svg">
+            </li>
+          </ul>
+        </header>
+        <section id="wikiHTML"></section>
+      </article>
+    </aside>
+    <main>
+      <div class="expandbutton" id="expandbutton"></div>
+      <div id="map"></div>
+    </main>
+  </div>
 </div>
 <div id="markdownArea" class="hide">
-  <h1>register</h1>
-  <form name="form">
-    <input name="title" type="text" placeholder="TITLE" >
-    <input name="keyword" type="text" placeholder="key words" >
-  </form>
-  <textarea id="markdown" name="name" rows="8" cols="40"></textarea>
+  <div class="flex">
+    <header class="markdownHeader" id="markdownHeader">
+      <h1>register</h1>
+      <ul class="icon">
+        <li class="post" id="post">
+          <img src="./images/post2.svg">
+          <p>post</p>
+        </li>
+        <li class="close" id="close">
+          <img src="./images/close2.svg">
+          <p>close</p>
+        </li>
+        <div class="dummy"></div>
+      </ul>
+    </header>
+    <form name="longlat">
+      <input name="longitude" type="text" placeholder="longitude ex. 36.5" >
+      <input name="latitude" type="text" placeholder="latitude ex. 139.0" >
+    </form>
+    <form name="markdownInput">
+      <input name="title" type="text" placeholder="TITLE" >
+      <input name="keywords" type="text" placeholder="split 5 key words or less  by ," >
+    </form>
+    <div class="markdownText">
+      <textarea id="markdown" name="name" ></textarea>
+    </div>
+  </div>
+</div>
+<div id="fullscreenMode" class="hide">
+  <div class="fullscreenContents">
+    <header>
+      <h1 id="fullscreenTitle"></h1>
+      <ul class="icon">
+       <li class="close" id="close2">
+          <img src="./images/close2.svg">
+          <p>close</p>
+        </li>
+        <div class="dummy"></div>
+      </ul>
+    </header>
+    <article>
+      <section id="fullscreenSection"></section>
+    </article>
+  </div>
 </div>
 </body>
 </html>
