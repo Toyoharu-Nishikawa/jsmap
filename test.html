@@ -2,38 +2,33 @@
 <html lang="en-us">
 <head>
 <meta charset="UTF-8">
-<title>JavaScript Markdown Editor - SimpleMDE</title>
+  <link rel="stylesheet" type="text/css" href="./styles/index.css">
+  <title>JavaScript Markdown Editor - SimpleMDE</title>
 </head>
 <body>
-<section class="main-content">
-<h1><a id="h1_demo1" class="anchor" href="#h1_demo1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Demo</h1>
-<textarea id="demo1"># Intro
-Go ahead, play around with the editor! Be sure to check out **bold** and *italic* styling, or even [links](https://google.com). You can type the Markdown syntax, use the toolbar, or use shortcuts like `cmd-b` or `ctrl-b`.
+<!--
+<aside>
+  <header><h1>jsmap</h1></header>
+  <article class="search">dd</article>
+  <article class="position">dd</article>
+  <article class="register">dd</article>
+  <article class="wiki">fdfd</article>
+</aside>
+-->
+  <aside >
+    <header>
+      <h1>jsmap</h1>
+    </header>
+    <article class="search">
+    </article>
+    <article class="position" id="position">
+    </article>
+    <article class="register" id="registerbutton">
+    </article>
+    <article class="wiki">
+      <section id="wikiHTML">aaa</section>
+    </article>
+  </aside>
 
-## Lists
-Unordered lists can be started using the toolbar or by typing `* `, `- `, or `+ `. Ordered lists can be started by typing `1. `.
-
-#### Unordered
-* Lists are a piece of cake
-* They even auto continue as you type
-* A double enter will end them
-* Tabs and shift-tabs work too
-
-#### Ordered
-1. Numbered lists...
-2. ...work too!
-
-## What about images?
-![Yes](https://i.imgur.com/sZlktY7.png)</textarea>
-</section>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
-<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-<script>
-  new SimpleMDE({
-    element: document.getElementById("demo1"),
-    spellChecker: false,
-  });
-</script>  
 </body>
 </html>
