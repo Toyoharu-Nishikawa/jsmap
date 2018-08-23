@@ -7,9 +7,11 @@ export const model ={
   initialURL: "/jsmap/node/initial",
   uploadURL: "/jsmap/node/upload",
   getOneURL: "/jsmap/node/getone",
+  deleteOneURL: "/jsmap/node/deleteone",
   id:null,
   modeFlag:false,
   fullscreenFlag:false,
+  deleteFlag:false,
   asideWidth:null,
   sumHeight:null,
   geomap:null,
@@ -36,7 +38,7 @@ export const model ={
     view.elements.map.style.width = width +"px"
     view.elements.map.style.height = height+"px" 
 
-    view.elements.expandbutton.innerHTML = arrow.right
+    view.elements.expandbutton.innerHTML = arrow.left
     
     const  geomap = L
       .map('map',{editable:true})
@@ -144,6 +146,7 @@ export const model ={
 
           view.elements.wikiTitle.textContent = title
           view.elements.wikiHTML.innerHTML = html 
+          model.id=id
         }
         else{
           throw new Error(json.message)
@@ -191,15 +194,21 @@ export const model ={
     execute:function(deleteId = true){
       const markdownArea = view.elements.markdownArea
       const mainContents = view.elements.mainContents
+      if(deleteId){
+        model.id = null
+        view.elements.delete.className = "deleteOff"
+        model.deleteFlag= false 
+      }
+      else{
+        view.elements.delete.className = "deleteOn"
+        model.deleteFlag= true 
+      }
       markdownArea.className = model.modeFlag ? "hide" : "show"
       mainContents.className = model.modeFlag ? "show" : "hide"
       model.modeFlag =model.modeFlag? false :true 
       view.elements.title.value = "" 
       view.elements.keywords.value = "" 
       model.simplemde.value("")
-      if(deleteId){
-        model.id = null
-      }
     },
   },
   edit:{
@@ -218,6 +227,53 @@ export const model ={
       view.elements.keywords.value = keywords 
       model.simplemde.value(text)
     }
+  },
+  delete:{
+    execute:function(){
+        console.log(model.deleteFlag)
+        console.log(model.id)
+      const flag = model.deleteFlag && model.id
+      if(!flag){
+        return false
+      }
+      const confirmResult = confirm("Will you delete this data exactly?")
+      if(!confirmResult){
+        return false
+      }
+      const body = {
+        id:model.id,
+      }
+      const url = model.deleteOneURL
+      const data = {
+        body: JSON.stringify(body),
+        cache: "no-cache",
+        credentials: "same-origin",
+        headers: {"content-type":"application/json"},
+        method: "POST",
+        mode: "cors",
+        redirect: "follow",
+        referror: "no-referror",
+      }
+      const send = async() =>{
+        try{
+          const response = await fetch(url, data)
+          const json = await response.json()
+          if(!json.id){
+            throw new Error(`data has not been saved yet. ${json.message}`) 
+          }
+          else{
+            console.log(`successfully delete id:${model.id}`)
+          }
+        }
+        catch(e){
+          console.log(e.message)
+          alert("jsmap server is not working")
+        }
+      }
+      send()
+
+
+    },
   },
   fullscreen:{
     execute:function(){

@@ -1,8 +1,20 @@
-*{
-  margin: 0;
+/*
+.editor-preview h1,
+.editor-preview h2,
+.editor-preview h3,
+.editor-preview h4,
+.editor-preview h5{
+  margin-bottom:10px;
 }
 
+.editor-preview h1{
+  border-bottom:1px solid #ddd;
+}
 
+.editor-preview h1{
+  border-bottom:1px solid #eee;
+}
+*/
 body{
   font-family:  san-serif;
   margin: 0;
@@ -72,6 +84,7 @@ aside > article.position {
 }
 
 aside > article.position >h2{
+  margin:0;
   font-size:20px;
   color: #3e5358;
 }
@@ -91,6 +104,9 @@ aside > article.position > div.positionPlot{
   color:#3e5358;
   display: flex;
 }
+aside > article.position > div.positionPlot>p{
+  margin:0;
+} 
 
 aside > article.position > div.positionPlot:hover{
   cursor:pointer;
@@ -148,6 +164,7 @@ aside > article.wiki>header {
 
 
 aside > article.wiki>header>h2 {
+  margin:0;
   width: 300px;
   word-wrap:break-word;
   font-size: 12px;
@@ -155,17 +172,20 @@ aside > article.wiki>header>h2 {
 }
 
 aside > article.wiki>header>ul {
+  margin:0;
   flex: 1; 
   display:flex;
   justify-content: flex-end;
 }
 
 aside > article.wiki>header>ul>li {
+  margin:0;
   position:relative;
   list-style:none;
 }
 
 aside > article.wiki>header>ul>li>img {
+  margin:0;
   width: 24px;
   height: 24px;
 }
@@ -264,6 +284,7 @@ header.markdownHeader >h1 {
 }
 
 header.markdownHeader  > ul {
+    margin:0;
   flex:1;
   display:flex;
   list-style:none;
@@ -281,30 +302,41 @@ header.markdownHeader  > ul >li{
   background:#FFFFCC;
 }
 
+header.markdownHeader  > ul >li.deleteOff{
+  background:#CCCCCC;
+  border:1px solid black;
+}
+header.markdownHeader  > ul >li.deleteOff:hover{
+  background:#CCCCCC;
+  border:1px solid black;
+  cursor:not-allowed;;
+}
+
 header.markdownHeader  > ul >li:hover{
   cursor:pointer;
   background:#FFFFBB;
 }
+
 header.markdownHeader  > ul >div.dummy{
   width: 130px
 }
- 
-header.markdownHeader>  ul > li.post > img {
+
+header.markdownHeader>  ul > li> img {
   width: 24px;
   height: 24px;
 }
 
-header.markdownHeader > ul > li.close > img {
-  width: 24px;
-  height: 24px;
-}
 header.markdownHeader  > ul >li > p{
   font-size: 20px;
   color:#FF8856;
   margin: 0px 3px 0px 5px
 }
 
-
+header.markdownHeader  > ul >li.deleteOff > p{
+  font-size: 20px;
+  color:#FFFFFF;
+  margin: 0px 3px 0px 5px
+}
 
 form[name="longlat"] {
   margin: 10px;
