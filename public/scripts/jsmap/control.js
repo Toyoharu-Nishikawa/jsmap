@@ -95,6 +95,14 @@ export const control = {
       view.elements.post.onclick = this.execute
     }
   },
+  delete:{
+    execute:function(){
+      model.delete.execute()
+    },
+    add:function(){
+      view.elements.delete.onclick = this.execute
+    }
+  },
   initialize: function(){
     //add method
     const controls = [
@@ -103,6 +111,7 @@ export const control = {
       this.change,
       this.register,
       this.edit,
+      this.delete,
       this.fullscreen,
       this.close2,
       this.close,
