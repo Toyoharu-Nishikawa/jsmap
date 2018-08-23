@@ -125,7 +125,31 @@ app.all('/node/getone',(request,response)=>{
   main()
 })
  
+app.all('/node/deleteone',(request,response)=>{
+  const param = request.body
+  const id = param.id
 
+  let client = null
+  const main = async ()=>{
+    try{
+      client = await MongoClient.connect(mongoURL)
+      const db = client.db("map")
+      const collection = db.collection("wiki")
+      const result = await collection.remove({_id:ObjectId(id)})
+      
+ 
+      response.json({id:result })
+    }
+    catch(e){
+      response.json({result:false, message:e.message})
+    }
+    finally{
+      client.close()
+    }
+  }
+  main()
+})
+ 
 app.listen(app.get('port'), function() {
       console.log("Node app is running at localhost:" + app.get('port'))
 });

@@ -14,6 +14,7 @@ export const view = {
     markdownHeader: document.getElementById("markdownHeader"),
     longlat: document.forms.longlat,
     markdownInput: document.forms.markdownInput,
+    delete: document.getElementById("delete"),
     post: document.getElementById("post"),
     close: document.getElementById("close"),
     positionPlot: document.getElementById("positionPlot"),
