@@ -12,6 +12,7 @@ export const model ={
   modeFlag:false,
   fullscreenFlag:false,
   deleteFlag:false,
+  marker: null,
   asideWidth:null,
   sumHeight:null,
   geomap:null,
@@ -136,17 +137,12 @@ export const model ={
           const title = result.title
           const keywords = result.keywords
           const text = result.text
-          const html = model.simplemde.options.previewRender(text)
 
-          model.wiki.longitude = longitude 
-          model.wiki.latitude = latitude 
-          model.wiki.title = title
-          model.wiki.keywords = keywords 
-          model.wiki.text = text 
-
-          view.elements.wikiTitle.textContent = title
-          view.elements.wikiHTML.innerHTML = html 
+          model.setWikiObj.execute(longitude, latitude, title,keywords, text)
+          model.setMiniWiki.execute(title, text)
           model.id=id
+          model.marker = eve.target
+          console.log(eve.target)
         }
         else{
           throw new Error(json.message)
@@ -263,6 +259,11 @@ export const model ={
           }
           else{
             console.log(`successfully delete id:${model.id}`)
+            const geomap = model.geomap
+            geomap.removeLayer(model.marker) 
+            model.clearRegister.execute()
+            model.setMiniWiki.execute()
+            model.close.execute()
           }
         }
         catch(e){
@@ -271,8 +272,6 @@ export const model ={
         }
       }
       send()
-
-
     },
   },
   fullscreen:{
@@ -330,11 +329,10 @@ export const model ={
     }
   },
   plot:{
-    marker: null,
     execute:function(){
       const geomap = model.geomap 
-      if(this.marker){
-        geomap.removeLayer(this.marker) 
+      if(model.marker){
+        geomap.removeLayer(model.marker) 
       }
       const longitudeString = view.elements.positionLongitude.value
       const latitudeString = view.elements.positionLatitude.value
@@ -345,15 +343,14 @@ export const model ={
           .marker([longitude, latitude],{icon:model.icon.grayIcon})
           .addTo(geomap)
         geomap.panTo(new L.LatLng(longitude, latitude))
-        this.marker = marker
+        model.marker = marker
+        console.log(marker)
       }
     }
   },
   post:{
     execute:function(){
       const simplemde = model.simplemde
-      const geomap = model.geomap 
-
       const wikiElement = view.elements.wiki
       const longitudeString = view.elements.longlatLongitude.value
       const latitudeString = view.elements.longlatLatitude.value
@@ -365,28 +362,6 @@ export const model ={
         const title = view.elements.title.value
         const keywords = view.elements.keywords.value
         const text = simplemde.value()
-        const html = simplemde.options.previewRender(text)
-
-        model.wiki.longitude = longitude 
-        model.wiki.latitude = latitude 
-        model.wiki.title = title
-        model.wiki.keywords = keywords 
-        model.wiki.text = text 
-
-        const marker = L.marker([longitude, latitude])
-          .addTo(geomap)
-          .bindPopup(title)
-          .openPopup()
-        geomap.panTo(new L.LatLng(longitude, latitude))
-        model.close.execute()
-
-        view.elements.longlatLongitude.value = ""
-        view.elements.longlatLatitude.value = ""
-        view.elements.title.value = ""
-        view.elements.keywords.value = ""
-        simplemde.value("")
-        view.elements.wikiTitle.textContent = title
-        view.elements.wikiHTML.innerHTML = html 
 
         const body = {
           id:id,
@@ -419,6 +394,7 @@ export const model ={
                 const id = json.id
                 model.id = id
                 console.log("result",id)
+                model.post.setWiki(id, longitude, latitude, title,keywords, text)
               }
             }
           }
@@ -430,5 +406,51 @@ export const model ={
         send()
       }
     },
+    setWiki:function(id, longitude, latitude, title,keywords, text){
+      const geomap = model.geomap 
+      const simplemde = model.simplemde
+      const clickFunc = model.makeClickFunc(id) 
+      const marker = L.marker([longitude, latitude])
+        .addTo(geomap)
+        .bindPopup(title)
+        .openPopup()
+        .on("click", clickFunc)
+
+      geomap.panTo(new L.LatLng(longitude, latitude))
+      model.marker = marker
+
+      model.setWikiObj.execute(longitude, latitude, title,keywords, text)
+      model.clearRegister.execute()
+      model.setMiniWiki.execute(title, text)
+      model.close.execute()
+    },
+  },
+  clearRegister:{
+    execute:function(){
+      const simplemde = model.simplemde
+   
+      view.elements.longlatLongitude.value = ""
+      view.elements.longlatLatitude.value = ""
+      view.elements.title.value = ""
+      view.elements.keywords.value = ""
+      simplemde.value("")
+    },
+  },
+  setWikiObj:{
+    execute:function(longitude, latitude, title,keywords, text){
+      model.wiki.longitude = longitude 
+      model.wiki.latitude = latitude 
+      model.wiki.title = title
+      model.wiki.keywords = keywords 
+      model.wiki.text = text 
+    },
+  },
+  setMiniWiki:{
+    execute:function(title, text){
+      const simplemde = model.simplemde
+      const html = text ? simplemde.options.previewRender(text):""
+      view.elements.wikiTitle.textContent = title? title:""
+      view.elements.wikiHTML.innerHTML = html 
+    }
   }
 }
