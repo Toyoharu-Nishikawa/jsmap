@@ -378,6 +378,7 @@ form[name="markdownInput"] >input[name="keywords"]{
 
 div.markdownText {
   flex:1;
+  margin: 0px 10px 0px 10px;
 }
 
 div.fullscreenContents {
