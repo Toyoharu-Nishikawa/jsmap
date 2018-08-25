@@ -16,7 +16,7 @@ export const model ={
   asideWidth:null,
   sumHeight:null,
   geomap:null,
-  simplemde:null,
+  editor:null,
   icon:{
     grayIcon: null,
     redIcon: null,
@@ -35,7 +35,7 @@ export const model ={
     this.asideWidth = asideWidth
     const width = bodyWidth - asideWidth
     const height = bodyHeight
- 
+
     view.elements.map.style.width = width +"px"
     view.elements.map.style.height = height+"px" 
 
@@ -95,23 +95,28 @@ export const model ={
     }
     getposition()
 
-    const markdownHeaderHeight = view.elements.markdownHeader.clientHeight
-    const longlatHeight = view.elements.longlat.clientHeight
-    const markdownInputHeight = view.elements.markdownInput.clientHeight
-    const sumHeight = markdownHeaderHeight+longlatHeight+markdownInputHeight
-
-    this.sumHeight = sumHeight
-
-    const simplemdeHeight = bodyHeight - sumHeight
-    view.elements.markdown.height = simplemdeHeight +"px"
-
-    const simplemde = new SimpleMDE({
-        element: view.elements.markdown,
-        spellChecker:false,
-        autoDownloadFontAwesome: false,
-      })
-    this.simplemde = simplemde
-
+    const editor = new tui.Editor({
+      el: view.elements.markdown,
+      initialEditType: 'markdown',
+      previewStyle: 'vertical',
+      height: "auto",
+      exts: [
+        {
+          name: 'chart',
+          minWidth: 100,
+          maxWidth: 600,
+          minHeight: 100,
+          maxHeight: 300,
+        },
+        'scrollSync',
+        'colorSyntax',
+        'uml',
+        'mark',
+        'table' 
+      ]
+    });
+    model.editor = editor
+    console.log(editor)
   },
   makeClickFunc:function(id){
     console.log(id)
@@ -161,12 +166,19 @@ export const model ={
     const asideWidth = this.expand.flag ? this.asideWidth:0
     const width = bodyWidth - asideWidth
     const height = bodyHeight
-    const sumHeight = this.sumHeight 
-    const simplemdeHeight = bodyHeight - sumHeight
 
+    const markdownHeaderHeight = view.elements.markdownHeader.clientHeight
+    const longlatHeight = view.elements.longlat.clientHeight
+    const markdownInputHeight = view.elements.markdownInput.clientHeight
+    const sumHeight = markdownHeaderHeight+longlatHeight+markdownInputHeight
+ 
+    const markdownHeight = bodyHeight - sumHeight-40
+    view.elements.markdownText.style.height = markdownHeight +"px"
+    view.elements.markdown.style.height = markdownHeight+"px" 
+    model.editor.height(markdownHeight)
+ 
     view.elements.map.style.width = width +"px"
     view.elements.map.style.height = height+"px" 
-    view.elements.markdown.style.height = simplemdeHeight+"px" 
   },
   change:{
     pLongExecute:function(){
@@ -202,15 +214,27 @@ export const model ={
       markdownArea.className = model.modeFlag ? "hide" : "show"
       mainContents.className = model.modeFlag ? "show" : "hide"
       model.modeFlag =model.modeFlag? false :true 
+
+      const bodyHeight = view.elements.body.clientHeight
+      const markdownHeaderHeight = view.elements.markdownHeader.clientHeight
+      const longlatHeight = view.elements.longlat.clientHeight
+      const markdownInputHeight = view.elements.markdownInput.clientHeight
+      const sumHeight = markdownHeaderHeight+longlatHeight+markdownInputHeight
+   
+      const markdownHeight = bodyHeight - sumHeight-40
+  
+      view.elements.markdownText.style.height = markdownHeight +"px"
+      view.elements.markdown.style.height = markdownHeight +"px"
+      model.editor.height(markdownHeight)
+
       view.elements.title.value = "" 
       view.elements.keywords.value = "" 
-      model.simplemde.value("")
+      model.editor.setValue("")
     },
   },
   edit:{
     execute: function(){
       model.registerbutton.execute(false)
-      const simplemde = model.simplemde
       const longitude = model.wiki.longitude
       const latitude = model.wiki.latitude
       const title = model.wiki.title
@@ -221,7 +245,7 @@ export const model ={
       view.elements.longlatLatitude.value = latitude 
       view.elements.title.value = title 
       view.elements.keywords.value = keywords 
-      model.simplemde.value(text)
+      model.editor.setValue(text)
     }
   },
   delete:{
@@ -276,13 +300,14 @@ export const model ={
   },
   fullscreen:{
     execute:function(){
-      const simplemde = model.simplemde
+      const editor = model.editor
       const fullscreenMode = view.elements.fullscreenMode   
       const mainContents = view.elements.mainContents
       const fullscreenTitle = view.elements.fullscreenTitle
       const fullscreenSection = view.elements.fullscreenSection
       const text = model.wiki.text
-      const html = simplemde.markdown(text)
+      editor.setValue(text)
+      const html = editor.getHtml()
       mainContents.className = model.fullscreenFlag ? "show":"hide"
       fullscreenMode.className = model.fullscreenFlag ? "hide":"show"
       model.fullscreenFlag = model.fullscreenFlag ? false :true
@@ -329,10 +354,11 @@ export const model ={
     }
   },
   plot:{
+    tmpMarker:null,
     execute:function(){
       const geomap = model.geomap 
-      if(model.marker){
-        geomap.removeLayer(model.marker) 
+      if(this.tmpMarker){
+        geomap.removeLayer(this.tmpMarker) 
       }
       const longitudeString = view.elements.positionLongitude.value
       const latitudeString = view.elements.positionLatitude.value
@@ -343,14 +369,14 @@ export const model ={
           .marker([longitude, latitude],{icon:model.icon.grayIcon})
           .addTo(geomap)
         geomap.panTo(new L.LatLng(longitude, latitude))
-        model.marker = marker
+        this.tmpMarker = marker
         console.log(marker)
       }
     }
   },
   post:{
     execute:function(){
-      const simplemde = model.simplemde
+      const editor = model.editor
       const wikiElement = view.elements.wiki
       const longitudeString = view.elements.longlatLongitude.value
       const latitudeString = view.elements.longlatLatitude.value
@@ -361,7 +387,7 @@ export const model ={
         console.log(id)
         const title = view.elements.title.value
         const keywords = view.elements.keywords.value
-        const text = simplemde.value()
+        const text = editor.getValue()
 
         const body = {
           id:id,
@@ -396,6 +422,9 @@ export const model ={
                 console.log("result",id)
                 model.post.setWiki(id, longitude, latitude, title,keywords, text)
               }
+              else{
+                console.log("error",json)
+              }
             }
           }
           catch(e){
@@ -408,7 +437,9 @@ export const model ={
     },
     setWiki:function(id, longitude, latitude, title,keywords, text){
       const geomap = model.geomap 
-      const simplemde = model.simplemde
+      if(model.marker){
+        geomap.removeLayer(model.marker)
+      }
       const clickFunc = model.makeClickFunc(id) 
       const marker = L.marker([longitude, latitude])
         .addTo(geomap)
@@ -427,13 +458,13 @@ export const model ={
   },
   clearRegister:{
     execute:function(){
-      const simplemde = model.simplemde
+      const editor = model.editor
    
       view.elements.longlatLongitude.value = ""
       view.elements.longlatLatitude.value = ""
       view.elements.title.value = ""
       view.elements.keywords.value = ""
-      simplemde.value("")
+      editor.setValue("")
     },
   },
   setWikiObj:{
@@ -447,8 +478,9 @@ export const model ={
   },
   setMiniWiki:{
     execute:function(title, text){
-      const simplemde = model.simplemde
-      const html = text ? simplemde.markdown(text):""
+      const editor = model.editor
+      editor.setValue(text)
+      const html = text ? editor.getHtml():""
       view.elements.wikiTitle.textContent = title? title:""
       view.elements.wikiHTML.innerHTML = html 
     }

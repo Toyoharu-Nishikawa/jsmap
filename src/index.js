@@ -61,7 +61,7 @@ app.all('/node/upload',(request,response)=>{
             {$set:wiki},
             {upsert:true}
          )
-        response.json({register:true}) 
+        response.json({register:true,id:id}) 
       }
       else {
         const result = await collection.insert(wiki)
