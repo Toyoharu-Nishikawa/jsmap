@@ -282,7 +282,7 @@ export const model ={
       const fullscreenTitle = view.elements.fullscreenTitle
       const fullscreenSection = view.elements.fullscreenSection
       const text = model.wiki.text
-      const html = simplemde.options.previewRender(text)
+      const html = simplemde.markdown(text)
       mainContents.className = model.fullscreenFlag ? "show":"hide"
       fullscreenMode.className = model.fullscreenFlag ? "hide":"show"
       model.fullscreenFlag = model.fullscreenFlag ? false :true
@@ -448,7 +448,7 @@ export const model ={
   setMiniWiki:{
     execute:function(title, text){
       const simplemde = model.simplemde
-      const html = text ? simplemde.options.previewRender(text):""
+      const html = text ? simplemde.markdown(text):""
       view.elements.wikiTitle.textContent = title? title:""
       view.elements.wikiHTML.innerHTML = html 
     }

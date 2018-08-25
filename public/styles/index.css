@@ -1,4 +1,4 @@
-/*
+
 .editor-preview h1,
 .editor-preview h2,
 .editor-preview h3,
@@ -7,14 +7,16 @@
   margin-bottom:10px;
 }
 
-.editor-preview h1{
-  border-bottom:1px solid #ddd;
-}
-
+.editor-preview-side h1,
 .editor-preview h1{
   border-bottom:1px solid #eee;
 }
-*/
+
+.editor-preview-side,
+.editor-preview{
+  color: #3e5358;
+}
+
 body{
   font-family:  san-serif;
   margin: 0;
@@ -228,6 +230,12 @@ aside > article.wiki>header>ul>li.fullscreenIcon:hover::after {
 aside > article.wiki>section {
   overflow: scroll; 
   flex:1;
+  color: #3e5358;
+}
+
+aside > article.wiki>section h1 {
+  border-bottom:1px solid #eee;
+  font-size: 2em;
 }
 
 main {
@@ -431,4 +439,11 @@ div.fullscreenContents >article>section {
   background: #FFFFFF;
   border:2px solid #EEEEEE;
   margin: 10px 30px 10px 30px;
+  color: #3e5358;
 }
+
+div.fullscreenContents >article>section h1 {
+  border-bottom:1px solid #eee;
+  font-size: 2em;
+}
+

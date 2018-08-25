@@ -9,6 +9,8 @@ export const view = {
     expandbutton: document.getElementById("expandbutton"),
     map: document.getElementById("map"),
     markdown: document.getElementById("markdown"),
+    minimarkdown: document.getElementById("minimarkdown"),
+    fullmarkdown: document.getElementById("fullmarkdown"),
     markdownArea: document.getElementById("markdownArea"),
     registerbutton: document.getElementById("registerbutton"),
     markdownHeader: document.getElementById("markdownHeader"),
