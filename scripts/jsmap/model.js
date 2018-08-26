@@ -17,6 +17,8 @@ export const model ={
   sumHeight:null,
   geomap:null,
   editor:null,
+  miniwiki:null,
+  fullscreenwiki:null,
   icon:{
     grayIcon: null,
     redIcon: null,
@@ -55,7 +57,7 @@ export const model ={
         iconSize: [32, 32],
         shadowSize: [41, 41],
         iconAnchor: [16, 32],
-        shadowAnchor: [6, 32],
+        shadowAnchor: [12, 40],
         popupAnchor: [-16, -32],
       })
     const url = model.initialURL 
@@ -100,6 +102,8 @@ export const model ={
       initialEditType: 'markdown',
       previewStyle: 'vertical',
       height: "auto",
+      viewer:false,
+      usageStatistics:false,
       exts: [
         {
           name: 'chart',
@@ -115,8 +119,32 @@ export const model ={
         'table' 
       ]
     });
+
     model.editor = editor
     console.log(editor)
+
+    const miniwiki = new tui.Editor.factory({
+      el:view.elements.wikiHTML,
+      height: "auto",
+      usageStatistics:false,
+      hideModeSwitch:false,
+      toolbarItems:[],
+      viewer:true,
+      initialValue:"",
+    }) 
+    model.miniwiki =miniwiki
+
+    const fullscreenwiki = new tui.Editor.factory({
+      el:view.elements.fullscreenSection,
+      height: "auto",
+      usageStatistics:false,
+      hideModeSwitch:false,
+      toolbarItems:[],
+      viewer:true,
+      initialValue:"",
+    }) 
+    model.fullscreenwiki =fullscreenwiki
+
   },
   makeClickFunc:function(id){
     console.log(id)
@@ -175,7 +203,7 @@ export const model ={
     const markdownHeight = bodyHeight - sumHeight-40
     view.elements.markdownText.style.height = markdownHeight +"px"
     view.elements.markdown.style.height = markdownHeight+"px" 
-    model.editor.height(markdownHeight)
+    model.editor.height(markdownHeight||300)
  
     view.elements.map.style.width = width +"px"
     view.elements.map.style.height = height+"px" 
@@ -300,20 +328,19 @@ export const model ={
   },
   fullscreen:{
     execute:function(){
-      const editor = model.editor
+      const fullscreenwiki = model.fullscreenwiki
       const fullscreenMode = view.elements.fullscreenMode   
       const mainContents = view.elements.mainContents
       const fullscreenTitle = view.elements.fullscreenTitle
       const fullscreenSection = view.elements.fullscreenSection
       const text = model.wiki.text
-      editor.setValue(text)
-      const html = editor.getHtml()
+      fullscreenwiki.setValue(text)
+     // const html = editor.getHtml()
       mainContents.className = model.fullscreenFlag ? "show":"hide"
       fullscreenMode.className = model.fullscreenFlag ? "hide":"show"
       model.fullscreenFlag = model.fullscreenFlag ? false :true
       fullscreenTitle.textContent = model.wiki.title
-      fullscreenSection.innerHTML = html 
-
+      //fullscreenSection.innerHTML = html 
     }
   },
   close2:{
@@ -366,12 +393,22 @@ export const model ={
       const latitude = parseFloat(latitudeString)
       if(!isNaN(longitude) && !isNaN(latitude)){
         const marker = L
-          .marker([longitude, latitude],{icon:model.icon.grayIcon})
+          .marker([longitude, latitude],
+            {icon:model.icon.grayIcon,draggable:"true"})
           .addTo(geomap)
+          .on("drag", model.plot.drag)
         geomap.panTo(new L.LatLng(longitude, latitude))
         this.tmpMarker = marker
         console.log(marker)
       }
+    },
+    drag:function(e){
+      const marker = e.target
+      const position = marker.getLatLng()
+      const longitude = position.lng
+      const latitude = position.lat 
+      view.elements.positionLongitude.value = longitude
+      view.elements.positionLatitude.value = latitude
     }
   },
   post:{
@@ -478,11 +515,26 @@ export const model ={
   },
   setMiniWiki:{
     execute:function(title, text){
+      view.elements.wikiTitle.textContent = title? title:""
+       /*
       const editor = model.editor
       editor.setValue(text)
       const html = text ? editor.getHtml():""
-      view.elements.wikiTitle.textContent = title? title:""
       view.elements.wikiHTML.innerHTML = html 
+      */
+      if(text){
+        model.miniwiki.setValue(text)
+        /*
+        const miniwiki = new tui.Editor({
+          el:view.elements.wikiHTML,
+          height: "auto",
+          initialValue:text,
+        }) 
+        */
+      }
+      else{
+        view.elements.wikiHTML.innerHTML =""
+      }
     }
   }
 }
