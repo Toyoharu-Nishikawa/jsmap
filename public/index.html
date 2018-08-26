@@ -9,22 +9,21 @@
   <link rel="stylesheet" type="text/css" href="./styles/index.css">
 
   <!-- tui-editor-->
-  <script src="./scripts/bower_components/jquery/dist/jquery.js"></script>
-  <script src='./scripts/bower_components/markdown-it/dist/markdown-it.js'></script>
-  <script src="./scripts/bower_components/to-mark/dist/to-mark.js"></script>
-  <script src="./scripts/bower_components/tui-code-snippet/dist/tui-code-snippet.js"></script>
-  <script src="./scripts/bower_components/codemirror/lib/codemirror.js"></script>
-  <script src="./scripts/bower_components/highlightjs/highlight.pack.js"></script>
-  <script src="./scripts/bower_components/squire-rte/build/squire-raw.js"></script>
+  <script defer src="./scripts/bower_components/jquery/dist/jquery.js"></script>
+  <script defer src='./scripts/bower_components/markdown-it/dist/markdown-it.js'></script>
+  <script defer src="./scripts/bower_components/to-mark/dist/to-mark.js"></script>
+  <script defer src="./scripts/bower_components/tui-code-snippet/dist/tui-code-snippet.js"></script>
+  <script defer src="./scripts/bower_components/codemirror/lib/codemirror.js"></script>
+  <script defer src="./scripts/bower_components/highlightjs/highlight.pack.js"></script>
+  <script defer src="./scripts/bower_components/squire-rte/build/squire-raw.js"></script>
 
-  <script src="./scripts/bower_components/raphael/raphael.js"></script>
-  <script src="./scripts/bower_components/plantuml-encoder/dist/plantuml-encoder.js"></script>
-  <script src="./scripts/bower_components/tui-color-picker/dist/tui-color-picker.js"></script>
-  <script src="./scripts/bower_components/tui-chart/dist/tui-chart.js"></script>
-  <script src="./scripts/bower_components/tui-editor/dist/tui-editor-Editor.js"></script>
-  <!--<script src="./scripts/bower_components/tui-editor/dist/tui-editor-Viewer.js"></script>-->
-  <script src="./scripts/bower_components/tui-editor/dist/tui-editor-extChart.js"></script>
-  <script src="./scripts/bower_components/tui-editor/dist/tui-editor-extColorSyntax.js"></script>
+  <script defer src="./scripts/bower_components/raphael/raphael.js"></script>
+  <script defer src="./scripts/bower_components/plantuml-encoder/dist/plantuml-encoder.js"></script>
+  <script defer src="./scripts/bower_components/tui-editor/dist/tui-editor-Editor.js"></script>
+  <script defer src="./scripts/bower_components/tui-color-picker/dist/tui-color-picker.js"></script>
+  <script defer src="./scripts/bower_components/tui-chart/dist/tui-chart.js"></script>
+  <script defer src="./scripts/bower_components/tui-editor/dist/tui-editor-extChart.js"></script>
+  <script defer src="./scripts/bower_components/tui-editor/dist/tui-editor-extColorSyntax.js"></script>
 
   <link rel="stylesheet" href="./scripts/bower_components/codemirror/lib/codemirror.css">
   <link rel="stylesheet" href="./scripts/bower_components/highlightjs/styles/github.css">
@@ -53,8 +52,8 @@
       <article class="position" id="position">
         <h2>pin on the map</h2>
         <form name="position">
-          <input name="longitude" type="text" placeholder="longitude ex. 36.5" >
-          <input name="latitude" type="text" placeholder="latitude ex. 139.0" >
+          <input name="latitude" type="text" placeholder="latitude ex. 35" >
+          <input name="longitude" type="text" placeholder="longitude ex. 135" >
         </form>
         <div class="positionPlot" id="positionPlot">
           <img src="./images/marker.svg">
@@ -107,8 +106,8 @@
       </ul>
     </header>
     <form name="longlat">
-      <input name="longitude" type="text" placeholder="longitude ex. 36.5" >
-      <input name="latitude" type="text" placeholder="latitude ex. 139.0" >
+      <input name="latitude" type="text" placeholder="latitude ex. 35" >
+      <input name="longitude" type="text" placeholder="longitude ex. 135" >
     </form>
     <form name="markdownInput">
       <input name="title" type="text" placeholder="TITLE" >

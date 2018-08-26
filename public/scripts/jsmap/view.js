@@ -18,6 +18,8 @@ export const view = {
     delete: document.getElementById("delete"),
     post: document.getElementById("post"),
     close: document.getElementById("close"),
+    form: document.forms.form,
+    search: document.forms.form.search,
     positionPlot: document.getElementById("positionPlot"),
     positionLongitude: document.forms.position.longitude,
     positionLatitude: document.forms.position.latitude,
