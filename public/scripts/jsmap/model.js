@@ -12,10 +12,13 @@ export const model ={
   modeFlag:false,
   fullscreenFlag:false,
   deleteFlag:false,
+  marker: null,
   asideWidth:null,
   sumHeight:null,
   geomap:null,
-  simplemde:null,
+  editor:null,
+  miniwiki:null,
+  fullscreenwiki:null,
   icon:{
     grayIcon: null,
     redIcon: null,
@@ -34,7 +37,7 @@ export const model ={
     this.asideWidth = asideWidth
     const width = bodyWidth - asideWidth
     const height = bodyHeight
- 
+
     view.elements.map.style.width = width +"px"
     view.elements.map.style.height = height+"px" 
 
@@ -54,7 +57,7 @@ export const model ={
         iconSize: [32, 32],
         shadowSize: [41, 41],
         iconAnchor: [16, 32],
-        shadowAnchor: [6, 32],
+        shadowAnchor: [12, 40],
         popupAnchor: [-16, -32],
       })
     const url = model.initialURL 
@@ -94,22 +97,53 @@ export const model ={
     }
     getposition()
 
-    const markdownHeaderHeight = view.elements.markdownHeader.clientHeight
-    const longlatHeight = view.elements.longlat.clientHeight
-    const markdownInputHeight = view.elements.markdownInput.clientHeight
-    const sumHeight = markdownHeaderHeight+longlatHeight+markdownInputHeight
+    const editor = new tui.Editor({
+      el: view.elements.markdown,
+      initialEditType: 'markdown',
+      previewStyle: 'vertical',
+      height: "auto",
+      viewer:false,
+      usageStatistics:false,
+      exts: [
+        {
+          name: 'chart',
+          minWidth: 100,
+          maxWidth: 600,
+          minHeight: 100,
+          maxHeight: 300,
+        },
+        'scrollSync',
+        'colorSyntax',
+        'uml',
+        'mark',
+        'table' 
+      ]
+    });
 
-    this.sumHeight = sumHeight
+    model.editor = editor
+    console.log(editor)
 
-    const simplemdeHeight = bodyHeight - sumHeight
-    view.elements.markdown.height = simplemdeHeight +"px"
+    const miniwiki = new tui.Editor.factory({
+      el:view.elements.wikiHTML,
+      height: "auto",
+      usageStatistics:false,
+      hideModeSwitch:false,
+      toolbarItems:[],
+      viewer:true,
+      initialValue:"",
+    }) 
+    model.miniwiki =miniwiki
 
-    const simplemde = new SimpleMDE({
-        element: view.elements.markdown,
-        spellChecker:false,
-        autoDownloadFontAwesome: false,
-      })
-    this.simplemde = simplemde
+    const fullscreenwiki = new tui.Editor.factory({
+      el:view.elements.fullscreenSection,
+      height: "auto",
+      usageStatistics:false,
+      hideModeSwitch:false,
+      toolbarItems:[],
+      viewer:true,
+      initialValue:"",
+    }) 
+    model.fullscreenwiki =fullscreenwiki
 
   },
   makeClickFunc:function(id){
@@ -136,17 +170,12 @@ export const model ={
           const title = result.title
           const keywords = result.keywords
           const text = result.text
-          const html = model.simplemde.options.previewRender(text)
 
-          model.wiki.longitude = longitude 
-          model.wiki.latitude = latitude 
-          model.wiki.title = title
-          model.wiki.keywords = keywords 
-          model.wiki.text = text 
-
-          view.elements.wikiTitle.textContent = title
-          view.elements.wikiHTML.innerHTML = html 
+          model.setWikiObj.execute(longitude, latitude, title,keywords, text)
+          model.setMiniWiki.execute(title, text)
           model.id=id
+          model.marker = eve.target
+          console.log(eve.target)
         }
         else{
           throw new Error(json.message)
@@ -165,12 +194,19 @@ export const model ={
     const asideWidth = this.expand.flag ? this.asideWidth:0
     const width = bodyWidth - asideWidth
     const height = bodyHeight
-    const sumHeight = this.sumHeight 
-    const simplemdeHeight = bodyHeight - sumHeight
 
+    const markdownHeaderHeight = view.elements.markdownHeader.clientHeight
+    const longlatHeight = view.elements.longlat.clientHeight
+    const markdownInputHeight = view.elements.markdownInput.clientHeight
+    const sumHeight = markdownHeaderHeight+longlatHeight+markdownInputHeight
+ 
+    const markdownHeight = bodyHeight - sumHeight-40
+    view.elements.markdownText.style.height = markdownHeight +"px"
+    view.elements.markdown.style.height = markdownHeight+"px" 
+    model.editor.height(markdownHeight||300)
+ 
     view.elements.map.style.width = width +"px"
     view.elements.map.style.height = height+"px" 
-    view.elements.markdown.style.height = simplemdeHeight+"px" 
   },
   change:{
     pLongExecute:function(){
@@ -206,15 +242,27 @@ export const model ={
       markdownArea.className = model.modeFlag ? "hide" : "show"
       mainContents.className = model.modeFlag ? "show" : "hide"
       model.modeFlag =model.modeFlag? false :true 
+
+      const bodyHeight = view.elements.body.clientHeight
+      const markdownHeaderHeight = view.elements.markdownHeader.clientHeight
+      const longlatHeight = view.elements.longlat.clientHeight
+      const markdownInputHeight = view.elements.markdownInput.clientHeight
+      const sumHeight = markdownHeaderHeight+longlatHeight+markdownInputHeight
+   
+      const markdownHeight = bodyHeight - sumHeight-40
+  
+      view.elements.markdownText.style.height = markdownHeight +"px"
+      view.elements.markdown.style.height = markdownHeight +"px"
+      model.editor.height(markdownHeight)
+
       view.elements.title.value = "" 
       view.elements.keywords.value = "" 
-      model.simplemde.value("")
+      model.editor.setValue("")
     },
   },
   edit:{
     execute: function(){
       model.registerbutton.execute(false)
-      const simplemde = model.simplemde
       const longitude = model.wiki.longitude
       const latitude = model.wiki.latitude
       const title = model.wiki.title
@@ -225,7 +273,7 @@ export const model ={
       view.elements.longlatLatitude.value = latitude 
       view.elements.title.value = title 
       view.elements.keywords.value = keywords 
-      model.simplemde.value(text)
+      model.editor.setValue(text)
     }
   },
   delete:{
@@ -263,6 +311,11 @@ export const model ={
           }
           else{
             console.log(`successfully delete id:${model.id}`)
+            const geomap = model.geomap
+            geomap.removeLayer(model.marker) 
+            model.clearRegister.execute()
+            model.setMiniWiki.execute()
+            model.close.execute()
           }
         }
         catch(e){
@@ -271,25 +324,23 @@ export const model ={
         }
       }
       send()
-
-
     },
   },
   fullscreen:{
     execute:function(){
-      const simplemde = model.simplemde
+      const fullscreenwiki = model.fullscreenwiki
       const fullscreenMode = view.elements.fullscreenMode   
       const mainContents = view.elements.mainContents
       const fullscreenTitle = view.elements.fullscreenTitle
       const fullscreenSection = view.elements.fullscreenSection
       const text = model.wiki.text
-      const html = simplemde.options.previewRender(text)
+      fullscreenwiki.setValue(text)
+     // const html = editor.getHtml()
       mainContents.className = model.fullscreenFlag ? "show":"hide"
       fullscreenMode.className = model.fullscreenFlag ? "hide":"show"
       model.fullscreenFlag = model.fullscreenFlag ? false :true
       fullscreenTitle.textContent = model.wiki.title
-      fullscreenSection.innerHTML = html 
-
+      //fullscreenSection.innerHTML = html 
     }
   },
   close2:{
@@ -330,11 +381,11 @@ export const model ={
     }
   },
   plot:{
-    marker: null,
+    tmpMarker:null,
     execute:function(){
       const geomap = model.geomap 
-      if(this.marker){
-        geomap.removeLayer(this.marker) 
+      if(this.tmpMarker){
+        geomap.removeLayer(this.tmpMarker) 
       }
       const longitudeString = view.elements.positionLongitude.value
       const latitudeString = view.elements.positionLatitude.value
@@ -342,18 +393,27 @@ export const model ={
       const latitude = parseFloat(latitudeString)
       if(!isNaN(longitude) && !isNaN(latitude)){
         const marker = L
-          .marker([longitude, latitude],{icon:model.icon.grayIcon})
+          .marker([longitude, latitude],
+            {icon:model.icon.grayIcon,draggable:"true"})
           .addTo(geomap)
+          .on("drag", model.plot.drag)
         geomap.panTo(new L.LatLng(longitude, latitude))
-        this.marker = marker
+        this.tmpMarker = marker
+        console.log(marker)
       }
+    },
+    drag:function(e){
+      const marker = e.target
+      const position = marker.getLatLng()
+      const longitude = position.lng
+      const latitude = position.lat 
+      view.elements.positionLongitude.value = longitude
+      view.elements.positionLatitude.value = latitude
     }
   },
   post:{
     execute:function(){
-      const simplemde = model.simplemde
-      const geomap = model.geomap 
-
+      const editor = model.editor
       const wikiElement = view.elements.wiki
       const longitudeString = view.elements.longlatLongitude.value
       const latitudeString = view.elements.longlatLatitude.value
@@ -364,29 +424,7 @@ export const model ={
         console.log(id)
         const title = view.elements.title.value
         const keywords = view.elements.keywords.value
-        const text = simplemde.value()
-        const html = simplemde.options.previewRender(text)
-
-        model.wiki.longitude = longitude 
-        model.wiki.latitude = latitude 
-        model.wiki.title = title
-        model.wiki.keywords = keywords 
-        model.wiki.text = text 
-
-        const marker = L.marker([longitude, latitude])
-          .addTo(geomap)
-          .bindPopup(title)
-          .openPopup()
-        geomap.panTo(new L.LatLng(longitude, latitude))
-        model.close.execute()
-
-        view.elements.longlatLongitude.value = ""
-        view.elements.longlatLatitude.value = ""
-        view.elements.title.value = ""
-        view.elements.keywords.value = ""
-        simplemde.value("")
-        view.elements.wikiTitle.textContent = title
-        view.elements.wikiHTML.innerHTML = html 
+        const text = editor.getValue()
 
         const body = {
           id:id,
@@ -419,6 +457,10 @@ export const model ={
                 const id = json.id
                 model.id = id
                 console.log("result",id)
+                model.post.setWiki(id, longitude, latitude, title,keywords, text)
+              }
+              else{
+                console.log("error",json)
               }
             }
           }
@@ -430,5 +472,69 @@ export const model ={
         send()
       }
     },
+    setWiki:function(id, longitude, latitude, title,keywords, text){
+      const geomap = model.geomap 
+      if(model.marker){
+        geomap.removeLayer(model.marker)
+      }
+      const clickFunc = model.makeClickFunc(id) 
+      const marker = L.marker([longitude, latitude])
+        .addTo(geomap)
+        .bindPopup(title)
+        .openPopup()
+        .on("click", clickFunc)
+
+      geomap.panTo(new L.LatLng(longitude, latitude))
+      model.marker = marker
+
+      model.setWikiObj.execute(longitude, latitude, title,keywords, text)
+      model.clearRegister.execute()
+      model.setMiniWiki.execute(title, text)
+      model.close.execute()
+    },
+  },
+  clearRegister:{
+    execute:function(){
+      const editor = model.editor
+   
+      view.elements.longlatLongitude.value = ""
+      view.elements.longlatLatitude.value = ""
+      view.elements.title.value = ""
+      view.elements.keywords.value = ""
+      editor.setValue("")
+    },
+  },
+  setWikiObj:{
+    execute:function(longitude, latitude, title,keywords, text){
+      model.wiki.longitude = longitude 
+      model.wiki.latitude = latitude 
+      model.wiki.title = title
+      model.wiki.keywords = keywords 
+      model.wiki.text = text 
+    },
+  },
+  setMiniWiki:{
+    execute:function(title, text){
+      view.elements.wikiTitle.textContent = title? title:""
+       /*
+      const editor = model.editor
+      editor.setValue(text)
+      const html = text ? editor.getHtml():""
+      view.elements.wikiHTML.innerHTML = html 
+      */
+      if(text){
+        model.miniwiki.setValue(text)
+        /*
+        const miniwiki = new tui.Editor({
+          el:view.elements.wikiHTML,
+          height: "auto",
+          initialValue:text,
+        }) 
+        */
+      }
+      else{
+        view.elements.wikiHTML.innerHTML =""
+      }
+    }
   }
 }
