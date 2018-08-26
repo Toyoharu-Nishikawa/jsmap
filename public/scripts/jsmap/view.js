@@ -8,6 +8,7 @@ export const view = {
     main: document.querySelector("main"),
     expandbutton: document.getElementById("expandbutton"),
     map: document.getElementById("map"),
+    markdownText: document.getElementById("markdownText"),
     markdown: document.getElementById("markdown"),
     markdownArea: document.getElementById("markdownArea"),
     registerbutton: document.getElementById("registerbutton"),
