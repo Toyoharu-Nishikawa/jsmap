@@ -19,6 +19,15 @@ export const control = {
       window.onresize=this.execute
     }, 
   },
+  search:{
+    execute:function(){
+      model.search.execute()
+      return false
+    },
+    add:function(){
+      view.elements.form.onsubmit= this.execute
+    }
+  },
   change:{
     pLongExecute:function(){
       model.change.pLongExecute()
@@ -107,6 +116,7 @@ export const control = {
     //add method
     const controls = [
       this.expand,
+      this.search,
       this.resize,
       this.change,
       this.register,

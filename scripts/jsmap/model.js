@@ -1,6 +1,6 @@
 import {view} from "./view.js"
 import {arrow} from "./svg/arrow.js"
-//import {parseParam, addParamToHash, removeParamFromHash} from "./hash.js"
+import {parseParam, addParamToHash, removeParamFromHash} from "./hash.js"
 "use strict"
 
 export const model ={
@@ -26,8 +26,8 @@ export const model ={
   wiki: {
     title: null,
     keywords:null,
-    longitude:null,
     latitude:null,
+    longitude:null,
     text:null,
   },
   initialize: function(){
@@ -42,7 +42,7 @@ export const model ={
     view.elements.map.style.height = height+"px" 
 
     view.elements.expandbutton.innerHTML = arrow.left
-    
+    model.parseHash() 
     const  geomap = L
       .map('map',{editable:true})
       .setView([36.3219088　, 139.0032936], 4)
@@ -78,8 +78,8 @@ export const model ={
         console.log(json.result)
         if(json.result){
           const markers = json.result.map(v=>{
-              const clickFunc = model.makeClickFunc(v._id) 
-              const marker =  L.marker([v.longitude, v.latitude])
+              const clickFunc = model.getInformation(v._id, true,null) 
+              const marker =  L.marker([v.latitude , v.longitude,])
                 .addTo(geomap)
                 .bindPopup(v.title)
                 .on("click", clickFunc)
@@ -143,10 +143,26 @@ export const model ={
       viewer:true,
       initialValue:"",
     }) 
-    model.fullscreenwiki =fullscreenwiki
 
+    model.fullscreenwiki =fullscreenwiki
   },
-  makeClickFunc:function(id){
+  parseHash:function(){
+    const param = parseParam(location.hash.slice(1))     
+    console.log(param)
+    if(param.size>0){
+      if(param.has("mode")&&param.has("id")){
+        const mode = param.get("mode")
+        const id = param.get("id")
+        model.id=String(id)
+        if(mode==="fullscreen" && id !=="null"){
+          const run = model.getInformation(id,false, model.fullscreen.execute)
+          run()
+          console.log("ok")
+        }
+      }
+    }
+  }, 
+  getInformation:function(id,setMiniWikiFlag=true, callback){
     console.log(id)
     const url = model.getOneURL
     const data = {
@@ -165,17 +181,24 @@ export const model ={
         const json = await response.json()
         if(json.result){
           const result = json.result
-          const longitude = result.longitude
           const latitude = result.latitude
+          const longitude = result.longitude
           const title = result.title
           const keywords = result.keywords
           const text = result.text
 
-          model.setWikiObj.execute(longitude, latitude, title,keywords, text)
-          model.setMiniWiki.execute(title, text)
+          model.setWikiObj.execute( latitude, longitude, title,keywords, text)
+          if(setMiniWikiFlag){
+            model.setMiniWiki.execute(title, text)
+          }
           model.id=id
-          model.marker = eve.target
-          console.log(eve.target)
+          model.marker = eve?eve.target:null
+          if(callback){
+            callback()
+          }
+          else {
+            return new Promise((resolve, reject)=>{resolve()})
+          }
         }
         else{
           throw new Error(json.message)
@@ -184,9 +207,14 @@ export const model ={
       catch(e){
         console.log(e.message)
         alert("jsmap server is not working")
+        return new Promise((resolve, reject)=>{resolve()})
       }
     }
     return send
+  },
+  search:{
+    execute:function(){
+    }
   },
   resize:function(){
     const bodyWidth = view.elements.body.clientWidth
@@ -209,21 +237,21 @@ export const model ={
     view.elements.map.style.height = height+"px" 
   },
   change:{
-    pLongExecute:function(){
-      const longitude = view.elements.positionLongitude.value
-      view.elements.longlatLongitude.value = longitude
-    },
     pLatExecute:function(){
       const latitude = view.elements.positionLatitude.value
       view.elements.longlatLatitude.value = latitude
     },
-    lLongExecute:function(){
-      const longitude = view.elements.longlatLongitude.value
-      view.elements.positionLongitude.value = longitude
+    pLongExecute:function(){
+      const longitude = view.elements.positionLongitude.value
+      view.elements.longlatLongitude.value = longitude
     },
     lLatExecute:function(){
       const latitude = view.elements.longlatLatitude.value
       view.elements.positionLatitude.value = latitude
+    },
+    lLongExecute:function(){
+      const longitude = view.elements.longlatLongitude.value
+      view.elements.positionLongitude.value = longitude
     },
   },
   registerbutton:{
@@ -263,14 +291,14 @@ export const model ={
   edit:{
     execute: function(){
       model.registerbutton.execute(false)
-      const longitude = model.wiki.longitude
       const latitude = model.wiki.latitude
+      const longitude = model.wiki.longitude
       const title = model.wiki.title
       const keywords = model.wiki.keywords
       const text = model.wiki.text ? model.wiki.text : "";
 
-      view.elements.longlatLongitude.value = longitude 
       view.elements.longlatLatitude.value = latitude 
+      view.elements.longlatLongitude.value = longitude 
       view.elements.title.value = title 
       view.elements.keywords.value = keywords 
       model.editor.setValue(text)
@@ -316,6 +344,7 @@ export const model ={
             model.clearRegister.execute()
             model.setMiniWiki.execute()
             model.close.execute()
+            location.hash = "" 
           }
         }
         catch(e){
@@ -334,13 +363,14 @@ export const model ={
       const fullscreenTitle = view.elements.fullscreenTitle
       const fullscreenSection = view.elements.fullscreenSection
       const text = model.wiki.text
+      const id =model.id
       fullscreenwiki.setValue(text)
-     // const html = editor.getHtml()
       mainContents.className = model.fullscreenFlag ? "show":"hide"
       fullscreenMode.className = model.fullscreenFlag ? "hide":"show"
       model.fullscreenFlag = model.fullscreenFlag ? false :true
       fullscreenTitle.textContent = model.wiki.title
-      //fullscreenSection.innerHTML = html 
+      addParamToHash("mode", "fullscreen")
+      addParamToHash("id", id)
     }
   },
   close2:{
@@ -352,6 +382,7 @@ export const model ={
       mainContents.className = model.fullscreenFlag ? "show":"hide"
       fullscreenMode.className = model.fullscreenFlag ? "hide":"show"
       model.fullscreenFlag = model.fullscreenFlag ? false :true
+     location.hash = "" 
     }
   },
   expand:{
@@ -378,6 +409,7 @@ export const model ={
       markdownArea.className = model.modeFlag ? "hide" : "show"
       mainContents.className = model.modeFlag ? "show" : "hide"
       model.modeFlag =model.modeFlag? false :true 
+     location.hash = "" 
     }
   },
   plot:{
@@ -387,17 +419,17 @@ export const model ={
       if(this.tmpMarker){
         geomap.removeLayer(this.tmpMarker) 
       }
-      const longitudeString = view.elements.positionLongitude.value
       const latitudeString = view.elements.positionLatitude.value
-      const longitude = parseFloat(longitudeString)
+      const longitudeString = view.elements.positionLongitude.value
       const latitude = parseFloat(latitudeString)
-      if(!isNaN(longitude) && !isNaN(latitude)){
+      const longitude = parseFloat(longitudeString)
+      if(!isNaN(latitude) &&!isNaN(longitude)){
         const marker = L
-          .marker([longitude, latitude],
+          .marker([latitude, longitude,],
             {icon:model.icon.grayIcon,draggable:"true"})
           .addTo(geomap)
           .on("drag", model.plot.drag)
-        geomap.panTo(new L.LatLng(longitude, latitude))
+        geomap.panTo(new L.LatLng(latitude, longitude,))
         this.tmpMarker = marker
         console.log(marker)
       }
@@ -405,21 +437,21 @@ export const model ={
     drag:function(e){
       const marker = e.target
       const position = marker.getLatLng()
-      const longitude = position.lng
       const latitude = position.lat 
-      view.elements.positionLongitude.value = longitude
+      const longitude = position.lng
       view.elements.positionLatitude.value = latitude
+      view.elements.positionLongitude.value = longitude
     }
   },
   post:{
     execute:function(){
       const editor = model.editor
       const wikiElement = view.elements.wiki
-      const longitudeString = view.elements.longlatLongitude.value
       const latitudeString = view.elements.longlatLatitude.value
-      const longitude = parseFloat(longitudeString)
+      const longitudeString = view.elements.longlatLongitude.value
       const latitude = parseFloat(latitudeString)
-      if(!isNaN(longitude) && !isNaN(latitude)){
+      const longitude = parseFloat(longitudeString)
+      if( !isNaN(latitude) && !isNaN(longitude) ){
         const id = model.id
         console.log(id)
         const title = view.elements.title.value
@@ -428,8 +460,8 @@ export const model ={
 
         const body = {
           id:id,
-          longitude:longitude,
           latitude:latitude,
+          longitude:longitude,
           title:title,
           keywords:keywords,
           text: text,
@@ -457,7 +489,7 @@ export const model ={
                 const id = json.id
                 model.id = id
                 console.log("result",id)
-                model.post.setWiki(id, longitude, latitude, title,keywords, text)
+                model.post.setWiki(id, latitude,longitude, title,keywords, text)
               }
               else{
                 console.log("error",json)
@@ -472,22 +504,22 @@ export const model ={
         send()
       }
     },
-    setWiki:function(id, longitude, latitude, title,keywords, text){
+    setWiki:function(id, latitude,longitude,  title,keywords, text){
       const geomap = model.geomap 
       if(model.marker){
         geomap.removeLayer(model.marker)
       }
-      const clickFunc = model.makeClickFunc(id) 
-      const marker = L.marker([longitude, latitude])
+      const clickFunc = model.getInformation(id,true) 
+      const marker = L.marker([latitude, longitude,])
         .addTo(geomap)
         .bindPopup(title)
         .openPopup()
         .on("click", clickFunc)
 
-      geomap.panTo(new L.LatLng(longitude, latitude))
+      geomap.panTo(new L.LatLng(latitude,longitude, ))
       model.marker = marker
 
-      model.setWikiObj.execute(longitude, latitude, title,keywords, text)
+      model.setWikiObj.execute(latitude, longitude,title,keywords, text)
       model.clearRegister.execute()
       model.setMiniWiki.execute(title, text)
       model.close.execute()
@@ -497,17 +529,17 @@ export const model ={
     execute:function(){
       const editor = model.editor
    
-      view.elements.longlatLongitude.value = ""
       view.elements.longlatLatitude.value = ""
+      view.elements.longlatLongitude.value = ""
       view.elements.title.value = ""
       view.elements.keywords.value = ""
       editor.setValue("")
     },
   },
   setWikiObj:{
-    execute:function(longitude, latitude, title,keywords, text){
-      model.wiki.longitude = longitude 
+    execute:function( latitude, longitude, title,keywords, text){
       model.wiki.latitude = latitude 
+      model.wiki.longitude = longitude 
       model.wiki.title = title
       model.wiki.keywords = keywords 
       model.wiki.text = text 
@@ -516,25 +548,8 @@ export const model ={
   setMiniWiki:{
     execute:function(title, text){
       view.elements.wikiTitle.textContent = title? title:""
-       /*
-      const editor = model.editor
-      editor.setValue(text)
-      const html = text ? editor.getHtml():""
-      view.elements.wikiHTML.innerHTML = html 
-      */
-      if(text){
-        model.miniwiki.setValue(text)
-        /*
-        const miniwiki = new tui.Editor({
-          el:view.elements.wikiHTML,
-          height: "auto",
-          initialValue:text,
-        }) 
-        */
-      }
-      else{
-        view.elements.wikiHTML.innerHTML =""
-      }
+      const textValue = text? text : ""
+        model.miniwiki.setValue(textValue)
     }
   }
 }
