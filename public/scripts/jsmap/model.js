@@ -13,6 +13,7 @@ export const model ={
   modeFlag:false,
   fullscreenFlag:false,
   deleteFlag:false,
+  cluster:null,
   marker: null,
   markers: null,
   asideWidth:null,
@@ -48,10 +49,15 @@ export const model ={
     const  geomap = L
       .map('map',{editable:true})
       .setView([36.3219088　, 139.0032936], 4)
+
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>',
         maxZoom: 18
       }).addTo(geomap)
+
+    const cluster = L.markerClusterGroup()
+    model.cluster = cluster
+
     this.geomap = geomap
     this.icon.grayIcon = L.icon({
         iconUrl: "scripts/leaflet/images/marker-icon-gray.png", 
@@ -62,6 +68,7 @@ export const model ={
         shadowAnchor: [12, 40],
         popupAnchor: [-16, -32],
       })
+
 
     const searchWords = model.getSearchWords()
     const searchList = searchWords !=="" ? searchWords: [""] 
@@ -87,11 +94,14 @@ export const model ={
           const markers = json.result.map(v=>{
               const clickFunc = model.getInformation(v._id, true,null) 
               const marker =  L.marker([v.latitude , v.longitude,])
-                .addTo(geomap)
                 .bindPopup(v.title)
                 .on("click", clickFunc)
               return marker
             })
+          markers.forEach(v=>{
+            cluster.addLayer(v)
+          })
+          geomap.addLayer(cluster)
           model.markers = markers
         }
         else{
@@ -361,7 +371,8 @@ export const model ={
           else{
             console.log(`successfully delete id:${model.id}`)
             const geomap = model.geomap
-            geomap.removeLayer(model.marker) 
+            const cluster = model.cluster
+            cluster.removeLayer(model.marker) 
             model.clearRegister.execute()
             model.setMiniWiki.execute()
             model.close.execute()
@@ -527,16 +538,17 @@ export const model ={
     },
     setWiki:function(id, latitude,longitude,  title,keywords, text){
       const geomap = model.geomap 
-      if(model.marker){
-        geomap.removeLayer(model.marker)
+      const cluster = model.cluster
+      if(model.marker && model.deleteFlag){
+        cluster.removeLayer(model.marker)
       }
       const clickFunc = model.getInformation(id,true) 
       const marker = L.marker([latitude, longitude,])
-        .addTo(geomap)
         .bindPopup(title)
-        .openPopup()
         .on("click", clickFunc)
-
+      
+      cluster.addLayer(marker)
+      marker.openPopup()
       geomap.panTo(new L.LatLng(latitude,longitude, ))
       model.marker = marker
 
