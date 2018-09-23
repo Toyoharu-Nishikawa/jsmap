@@ -8,11 +8,13 @@ export const model ={
   uploadURL: "/jsmap/node/upload",
   getOneURL: "/jsmap/node/getone",
   deleteOneURL: "/jsmap/node/deleteone",
+  searchURL: "/jsmap/node/search",
   id:null,
   modeFlag:false,
   fullscreenFlag:false,
   deleteFlag:false,
   marker: null,
+  markers: null,
   asideWidth:null,
   sumHeight:null,
   geomap:null,
@@ -60,9 +62,14 @@ export const model ={
         shadowAnchor: [12, 40],
         popupAnchor: [-16, -32],
       })
+
+    const searchWords = model.getSearchWords()
+    const searchList = searchWords !=="" ? searchWords: [""] 
+    view.elements.search.value = searchList.join(" ")
+ 
     const url = model.initialURL 
     const data = {
-      body: JSON.stringify({}),
+      body: JSON.stringify(searchList),
       cache: "no-cache",
       credentials: "same-origin",
       headers: {"content-type":"application/json"},
@@ -85,6 +92,7 @@ export const model ={
                 .on("click", clickFunc)
               return marker
             })
+          model.markers = markers
         }
         else{
           throw new Error(json.message)
@@ -145,6 +153,17 @@ export const model ={
     }) 
 
     model.fullscreenwiki =fullscreenwiki
+  },
+  getSearchWords:function(){
+    const param = decodeURIComponent(location.search).substring(1).split('&')
+    const data = new Map()
+    param.forEach(v=>{
+      const p = v.split("=")
+      data.set(p[0],p[1]) 
+    })
+    const searchWords = data.has("search") ? data.get("search").split("+"):""
+
+    return searchWords 
   },
   parseHash:function(){
     const param = parseParam(location.hash.slice(1))     
@@ -214,6 +233,8 @@ export const model ={
   },
   search:{
     execute:function(){
+      const searchWords = view.elements.search.value
+      const searchList = searchWords.split(/\s+/g) 
     }
   },
   resize:function(){

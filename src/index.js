@@ -80,15 +80,27 @@ app.all('/node/upload',(request,response)=>{
 
 app.all('/node/initial',(request,response)=>{
   let client = null
+  const param = request.body
+  console.log(param)
   const main = async ()=>{
     try{
       client = await MongoClient.connect(mongoURL)
       const db = client.db("map")
-      const collection = db.collection("wiki");
-      const result = await collection.find({},
+      const collection = db.collection("wiki")
+
+      const reg = param.join("|")
+
+      const findCondition = (param.length===1 && param[0]==="") ?{}:
+        {$or:[
+            {title:{$regex:reg}},
+            {keywords:{$regex:reg}},
+          ]
+        }
+      console.log(findCondition)
+      const result = await collection.find(findCondition,
           {projection:{title:1, _id: 1,longitude: 1, latitude:1}})
         .toArray()
-     response.json({result:result })
+      response.json({result:result })
     }
     catch(e){
       response.json({result:false, message:e.message})
