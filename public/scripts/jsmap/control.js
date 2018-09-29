@@ -19,26 +19,6 @@ export const control = {
       window.onresize=this.execute
     }, 
   },
-  change:{
-    pLongExecute:function(){
-      model.change.pLongExecute()
-    },
-    pLatExecute:function(){
-      model.change.pLatExecute()
-    },
-    lLongExecute:function(){
-      model.change.lLongExecute()
-    },
-    lLatExecute:function(){
-      model.change.lLatExecute()
-    },
-    add:function(){
-      view.elements.positionLongitude.onchange = this.pLongExecute
-      view.elements.positionLatitude.onchange = this.pLatExecute
-      view.elements.longlatLongitude.onchange = this.lLongExecute
-      view.elements.longlatLatitude.onchange = this.lLatExecute
-    },
-  },
   register:{
     execute:function(){
         model.registerbutton.execute()
@@ -107,9 +87,7 @@ export const control = {
     //add method
     const controls = [
       this.expand,
-//      this.search,
       this.resize,
-      this.change,
       this.register,
       this.edit,
       this.delete,

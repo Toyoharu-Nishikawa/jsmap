@@ -267,24 +267,6 @@ export const model ={
     view.elements.map.style.width = width +"px"
     view.elements.map.style.height = height+"px" 
   },
-  change:{
-    pLatExecute:function(){
-      const latitude = view.elements.positionLatitude.value
-      view.elements.longlatLatitude.value = latitude
-    },
-    pLongExecute:function(){
-      const longitude = view.elements.positionLongitude.value
-      view.elements.longlatLongitude.value = longitude
-    },
-    lLatExecute:function(){
-      const latitude = view.elements.longlatLatitude.value
-      view.elements.positionLatitude.value = latitude
-    },
-    lLongExecute:function(){
-      const longitude = view.elements.longlatLongitude.value
-      view.elements.positionLongitude.value = longitude
-    },
-  },
   registerbutton:{
     execute:function(deleteId = true){
       const markdownArea = view.elements.markdownArea
@@ -310,12 +292,18 @@ export const model ={
    
       const markdownHeight = bodyHeight - sumHeight-40
   
+      const latitude = view.elements.positionLatitude.value
+      const longitude = view.elements.positionLongitude.value
+
       view.elements.markdownText.style.height = markdownHeight +"px"
       view.elements.markdown.style.height = markdownHeight +"px"
       model.editor.height(markdownHeight)
 
       view.elements.title.value = "" 
       view.elements.keywords.value = "" 
+      view.elements.longlatLatitude.value = latitude
+      view.elements.longlatLongitude.value = longitude
+ 
       model.editor.setValue("")
     },
   },
