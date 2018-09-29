@@ -232,7 +232,7 @@ main > div.expandbutton {
   position:absolute;
   top: 100px;
   left: 0px;
-  z-index:1;
+  z-index:900;
   width:16px;
   height:48px;
   display:flex;
@@ -423,6 +423,7 @@ div.fullscreenContents >article>section {
   background: #FFFFFF;
   border:2px solid #EEEEEE;
   margin: 10px 30px 10px 30px;
+  padding:10px;
 /*  color: #3e5358;*/
 }
 /*
