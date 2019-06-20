@@ -6,6 +6,10 @@ const app = express();
 const fs = require('fs')
 const assert = require('assert')
 
+const db_addr = process.env.hasOwnProperty("DB_ADDR")? process.env.DB_ADDR :
+  "mongo:27017"
+const mongoURL = `mongodb://${db_addr}`
+
 
 const log = require('log');
 
@@ -17,7 +21,6 @@ catch(err){
 }
 const logger = new log("info", fs.createWriteStream("/var/log/node/node.access.log",{flags:"a"}));
 
-const mongoURL = 'mongodb://mongo:27017';
 app.use(bodyParser.urlencoded({
         extended: true
 }));
