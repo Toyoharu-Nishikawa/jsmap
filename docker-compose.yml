@@ -1,31 +1,17 @@
 version: '2'
 services:
-  mongo:
-    image: mongo
-    restart: always
-    volumes:
-      - /var/data/jsmap_mongo/db:/data/db
-    networks:
-      - default
   api:
-    image: node:alpine
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile
     restart: always 
-    environment:
-      - DB_ADDR=mongo
-    volumes:
-      - ./src:/usr/src
-      - /var/log/jsmap:/var/log/node
-    working_dir: '/usr/src'
-    command: npm start
     networks:
       - default
   web:
-    image: nginx:alpine
+    build:
+      context: ./
+      dockerfile: ./web/Dockerfile
     restart: always 
-    volumes:
-      - ./public:/usr/share/nginx/html
-      - ./conf.d:/etc/nginx/conf.d
-      - /var/log/jsmap:/var/log/nginx
     networks:
       - default
       - neco_link
